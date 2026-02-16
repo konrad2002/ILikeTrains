@@ -1,0 +1,227 @@
+[gd_scene load_steps=5 format=3 uid="uid://c8mqlq4n7qkef"]
+
+[sub_resource type="GDScript" id="GDScript_u8vuu"]
+script/source = "extends CharacterBody3D
+
+# ==============================
+# == CONFIGURATION ============
+# ==============================
+
+@export var walk_speed: float = 5.0
+@export var sprint_speed: float = 9.0
+@export var crouch_speed: float = 2.5
+@export var fly_speed: float = 8.0
+@export var jump_velocity: float = 6.5
+@export var acceleration: float = 10.0
+@export var air_control: float = 4.0
+@export var gravity: float = 20.0
+@export var crouch_height_scale: float = 0.6
+@export var double_tap_time: float = 0.25
+
+@export var mouse_sensitivity: float = 0.0025
+@export var max_look_angle: float = 85.0
+
+@onready var camera_pivot: Node3D = $CameraPivot
+
+var look_x_rotation: float = 0.0
+
+
+# ==============================
+# == STATE =====================
+# ==============================
+
+var is_flying: bool = false
+var is_crouching: bool = false
+var last_space_time: float = 0.0
+
+var current_speed: float = 0.0
+
+@onready var camera: Camera3D = $CameraPivot/Camera3D
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+
+var original_scale: Vector3
+
+# ==============================
+# == READY =====================
+# ==============================
+
+func _ready():
+	original_scale = scale
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
+# ==============================
+# == INPUT =====================
+# ==============================
+
+func _input(event):
+	if event.is_action_pressed(\"jump\"):
+		var current_time = Time.get_ticks_msec() / 1000.0
+		if current_time - last_space_time < double_tap_time:
+			toggle_fly_mode()
+		last_space_time = current_time
+		
+	if event.is_action_pressed(\"ui_cancel\"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	
+	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		rotate_y(-event.relative.x * mouse_sensitivity)
+		
+		look_x_rotation -= event.relative.y * mouse_sensitivity
+		look_x_rotation = clamp(
+			look_x_rotation,
+			deg_to_rad(-max_look_angle),
+			deg_to_rad(max_look_angle)
+		)
+		
+		# Lock yaw/roll on the pivot to prevent unintended tilt.
+		camera_pivot.rotation = Vector3(look_x_rotation, 0.0, 0.0)
+
+
+# ==============================
+# == PHYSICS ===================
+# ==============================
+
+func _physics_process(delta):
+
+	handle_crouch()
+	
+	if is_flying:
+		handle_flying(delta)
+	else:
+		handle_ground_movement(delta)
+
+	move_and_slide()
+
+# ==============================
+# == MOVEMENT ==================
+# ==============================
+
+func handle_ground_movement(delta):
+
+	# Gravity
+	if not is_on_floor():
+		velocity.y -= gravity * delta
+	else:
+		if Input.is_action_just_pressed(\"jump\"):
+			velocity.y = jump_velocity
+
+	# Determine speed
+	if is_crouching:
+		current_speed = crouch_speed
+	elif Input.is_action_pressed(\"sprint\"):
+		current_speed = sprint_speed
+	else:
+		current_speed = walk_speed
+
+	# Movement input
+	var input_dir = Input.get_vector(
+		\"move_left\",
+		\"move_right\",
+		\"move_backward\",
+		\"move_forward\"
+	)
+
+	var direction = Vector3.ZERO
+	
+	if input_dir != Vector2.ZERO:
+		var cam_basis = camera.global_transform.basis
+		var forward = -cam_basis.z
+		var right = cam_basis.x
+		
+		direction = (forward * input_dir.y + right * input_dir.x).normalized()
+
+	# Apply acceleration
+	var target_velocity = direction * current_speed
+	var control = acceleration if is_on_floor() else air_control
+	
+	velocity.x = move_toward(velocity.x, target_velocity.x, control * delta)
+	velocity.z = move_toward(velocity.z, target_velocity.z, control * delta)
+
+# ==============================
+# == FLYING ====================
+# ==============================
+
+func handle_flying(delta):
+
+	velocity = Vector3.ZERO
+
+	var input_dir = Input.get_vector(
+		\"move_left\",
+		\"move_right\",
+		\"move_backward\",
+		\"move_forward\"
+	)
+
+	var direction = Vector3.ZERO
+	
+	var cam_basis = camera.global_transform.basis
+	var forward = -cam_basis.z
+	var right = cam_basis.x
+	var up = cam_basis.y
+	
+	direction += forward * input_dir.y
+	direction += right * input_dir.x
+
+	if Input.is_action_pressed(\"jump\"):
+		direction += up
+	if Input.is_action_pressed(\"crouch\"):
+		direction -= up
+
+	if direction != Vector3.ZERO:
+		direction = direction.normalized()
+
+	velocity = direction * fly_speed
+
+# ==============================
+# == CROUCH ====================
+# ==============================
+
+func handle_crouch():
+
+	if Input.is_action_pressed(\"crouch\") and not is_flying:
+		if not is_crouching:
+			is_crouching = true
+			scale.y = original_scale.y * crouch_height_scale
+	else:
+		if is_crouching:
+			is_crouching = false
+			scale = original_scale
+
+# ==============================
+# == FLY TOGGLE ================
+# ==============================
+
+func toggle_fly_mode():
+	is_flying = !is_flying
+	
+	if is_flying:
+		velocity = Vector3.ZERO
+"
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_u8vuu"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u8vuu"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_3vyb7"]
+
+[node name="Player" type="CharacterBody3D"]
+script = SubResource("GDScript_u8vuu")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_u8vuu")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_u8vuu")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.106077, 0, 0, 0, 0.110827, 0, 0, 0, 0.169572, 0.0546497, 0.0443977, -0.00602107)
+mesh = SubResource("SphereMesh_3vyb7")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.130673, 0.0532114, 0)
+current = true

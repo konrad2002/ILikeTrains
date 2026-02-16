@@ -1,0 +1,110 @@
+[gd_scene load_steps=8 format=3 uid="uid://cb4wb2d46rxqv"]
+
+[ext_resource type="Material" uid="uid://owab7njdje5g" path="res://materials/locomotive_black.tres" id="2_rkiwd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2w2lo"]
+size = Vector3(0.481582, 0.535043, 1.353)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_oit2l"]
+material = ExtResource("2_rkiwd")
+top_radius = 0.16
+bottom_radius = 0.16
+height = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_txhwl"]
+material = ExtResource("2_rkiwd")
+
+[sub_resource type="BoxMesh" id="BoxMesh_w4gln"]
+material = ExtResource("2_rkiwd")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v0v34"]
+albedo_color = Color(1, 0.06, 0.06, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cx15f"]
+material = SubResource("StandardMaterial3D_v0v34")
+top_radius = 0.1
+bottom_radius = 0.12
+height = 0.02
+
+[node name="Locomotive" type="RigidBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.94149, 0, 0, 0, 0.94149, 0, 0, 0, 0.94149, 0.000395373, 0.251595, -0.176636)
+shape = SubResource("BoxShape3D_2w2lo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.000411332, 0.404656, -0.00210702)
+mesh = SubResource("CylinderMesh_oit2l")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.449244, 0, 0, 0, 0.262878, 0, 0, 0, 0.99832, 0.000411332, 0.342009, -0.110967)
+mesh = SubResource("BoxMesh_txhwl")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.298471, 0, 0, 0, 0.154299, 0, 0, 0, 1.14642, 0.000411332, 0.142426, -0.12555)
+mesh = SubResource("BoxMesh_txhwl")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.45, 0, 0, 0, 0.603142, 0, 0, 0, 0.413, 0.000411332, 0.51563, -0.644721)
+mesh = SubResource("BoxMesh_w4gln")
+skeleton = NodePath("")
+
+[node name="Wheels" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000411332, 0.00183344, -0.00210702)
+
+[node name="WheelsLeft" type="Node3D" parent="Wheels"]
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Wheels/WheelsLeft"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.194568, 0.120533, 0.218812)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Wheels/WheelsLeft"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.194568, 0.120533, -0.0716175)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Wheels/WheelsLeft"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.194568, 0.120533, -0.348858)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Wheels/WheelsLeft"]
+transform = Transform3D(-4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0, 1, 0.194568, 0.120533, -0.622044)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Wheels/WheelsLeft"]
+transform = Transform3D(-2.18557e-08, 1, 0, -0.5, -4.37114e-08, 0, 0, 0, 0.5, 0.194568, 0.068724, 0.421756)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="WheelsLeft2" type="Node3D" parent="Wheels"]
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Wheels/WheelsLeft2"]
+transform = Transform3D(4.37114e-08, -1, -8.74228e-08, -1, -4.37114e-08, 0, -3.82137e-15, 8.74228e-08, -1, -0.195, 0.120533, 0.218812)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Wheels/WheelsLeft2"]
+transform = Transform3D(4.37114e-08, -1, -8.74228e-08, -1, -4.37114e-08, 0, -3.82137e-15, 8.74228e-08, -1, -0.195, 0.120533, -0.0716175)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Wheels/WheelsLeft2"]
+transform = Transform3D(4.37114e-08, -1, -8.74228e-08, -1, -4.37114e-08, 0, -3.82137e-15, 8.74228e-08, -1, -0.195, 0.120533, -0.348858)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Wheels/WheelsLeft2"]
+transform = Transform3D(4.37114e-08, -1, -8.74228e-08, -1, -4.37114e-08, 0, -3.82137e-15, 8.74228e-08, -1, -0.195, 0.120533, -0.622044)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Wheels/WheelsLeft2"]
+transform = Transform3D(2.18557e-08, -1, -4.37114e-08, -0.5, -4.37114e-08, 0, -1.91069e-15, 8.74228e-08, -0.5, -0.195, 0.068724, 0.421756)
+mesh = SubResource("CylinderMesh_cx15f")
+skeleton = NodePath("")
